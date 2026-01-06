@@ -2,115 +2,184 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>점수 합산 시스템</title>
 
 <style>
 :root {
-    --main: #2563eb;
-    --bg: #f4f6fb;
-    --card: #ffffff;
-    --border: #e5e7eb;
-    --text: #111827;
+  --main: #2563eb;
+  --bg: #f4f6fb;
+  --card: #ffffff;
+  --border: #e5e7eb;
+  --text: #111827;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
-    margin: 0;
-    padding: 30px;
-    font-family: Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden; /* 🔥 바디 스크롤 제거 */
 }
 
-.card {
-    background: var(--card);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
-    margin-bottom: 25px;
+/* 전체화면 앱 */
+.app {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 상단 */
+.header {
+  padding: 14px;
+  background: var(--card);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.header h2 {
+  margin: 0 0 10px;
+  font-size: 18px;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
 }
 
 button {
-    background: var(--main);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 16px;
-    cursor: pointer;
+  flex: 1;
+  background: var(--main);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 600;
 }
 
+/* 세로 스크롤 영역 */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+
+/* 카드 */
+.card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 12px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+  margin-bottom: 20px;
+}
+
+/* 테이블 가로 스크롤 */
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 테이블 */
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 15px;
+  border-collapse: collapse;
+  min-width: 900px; /* 🔥 일부러 크게 */
+  width: 100%;
 }
 
 th, td {
-    border: 1px solid var(--border);
-    padding: 8px;
-    text-align: center;
+  border: 1px solid var(--border);
+  padding: 6px;
+  text-align: center;
+  font-size: 14px;
+  background: #fff;
 }
 
-thead {
-    background: #f1f5f9;
+/* 헤더 */
+thead th {
+  background: #f1f5f9;
+  font-weight: 600;
 }
 
-/* 🔥 핵심 수정 부분 */
+/* 이름 고정 */
+th:first-child,
+td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: #f9fafb;
+  min-width: 90px;
+}
+
+/* 입력 */
 input[type="text"],
 input[type="number"] {
-    width: 100%;
-    padding: 6px 8px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    font-size: 14px;
-    color: #111827;
-    background-color: #ffffff;
+  width: 100%;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  text-align: center;
+  font-size: 14px;
 }
 
-input:focus {
-    outline: none;
-    border-color: var(--main);
-    box-shadow: 0 0 0 2px rgba(37,99,235,0.15);
-}
-
+/* 결과 */
 .rank-item {
-    padding: 10px;
-    background: #f9fafb;
-    border-left: 4px solid var(--main);
-    margin-bottom: 6px;
-    border-radius: 6px;
+  padding: 12px;
+  background: #f9fafb;
+  border-left: 4px solid var(--main);
+  margin-bottom: 8px;
+  border-radius: 8px;
+  font-size: 15px;
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="app">
+
+  <div class="header">
     <h2>플레이어 점수 입력</h2>
+    <div class="buttons">
+      <button onclick="addPlayer()">이름 추가</button>
+      <button onclick="calculateScores()">점수 합산</button>
+    </div>
+  </div>
 
-    <button onclick="addPlayer()">이름 입력칸 추가</button>
-    <button onclick="calculateScores()">점수 합산</button>
+  <!-- 세로 스크롤 영역 -->
+  <div class="content">
 
-    <table id="scoreTable">
-        <thead>
+    <div class="card">
+      <div class="table-wrap">
+        <table id="scoreTable">
+          <thead>
             <tr>
-                <th>이름</th>
-                <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
-                <th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>
+              <th>이름</th>
+              <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>
+              <th>6</th><th>7</th><th>8</th><th>9</th><th>10</th>
             </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
-</div>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
 
-<div class="card">
-    <h2>결과</h2>
-    <div id="result">아직 결과가 없습니다.</div>
+    <div class="card">
+      <h2>결과</h2>
+      <div id="result">아직 결과가 없습니다.</div>
+    </div>
+
+  </div>
 </div>
 
 <script>
 const defaultNames = [
-    "신유수", "권민준", "백윤호",
-    "김용한", "방지원", "김건우", "신홍익"
+  "신유수", "권민준", "백윤호",
+  "김용한", "방지원", "김건우", "신홍익"
 ];
 
 const tbody = document.querySelector("#scoreTable tbody");
@@ -118,59 +187,60 @@ const tbody = document.querySelector("#scoreTable tbody");
 defaultNames.forEach(name => addPlayer(name));
 
 function addPlayer(name = "") {
-    const tr = document.createElement("tr");
+  const tr = document.createElement("tr");
 
-    const nameTd = document.createElement("td");
-    const nameInput = document.createElement("input");
-    nameInput.type = "text";
-    nameInput.value = name;
-    nameTd.appendChild(nameInput);
-    tr.appendChild(nameTd);
+  const nameTd = document.createElement("td");
+  const nameInput = document.createElement("input");
+  nameInput.type = "text";
+  nameInput.value = name;
+  nameTd.appendChild(nameInput);
+  tr.appendChild(nameTd);
 
-    for (let i = 0; i < 10; i++) {
-        const td = document.createElement("td");
-        const input = document.createElement("input");
-        input.type = "number";
-        td.appendChild(input);
-        tr.appendChild(td);
-    }
+  for (let i = 0; i < 10; i++) {
+    const td = document.createElement("td");
+    const input = document.createElement("input");
+    input.type = "number";
+    input.inputMode = "numeric";
+    td.appendChild(input);
+    tr.appendChild(td);
+  }
 
-    tbody.appendChild(tr);
+  tbody.appendChild(tr);
 }
 
 function calculateScores() {
-    const rows = tbody.querySelectorAll("tr");
-    const results = [];
+  const rows = tbody.querySelectorAll("tr");
+  const results = [];
 
-    rows.forEach(row => {
-        const inputs = row.querySelectorAll("input");
-        const name = inputs[0].value.trim();
-        if (!name) return;
+  rows.forEach(row => {
+    const inputs = row.querySelectorAll("input");
+    const name = inputs[0].value.trim();
+    if (!name) return;
 
-        let sum = 0;
-        for (let i = 1; i <= 10; i++) {
-            sum += Number(inputs[i].value) || 0;
-        }
-
-        results.push({ name, sum });
-    });
-
-    results.sort((a, b) => b.sum - a.sum);
-
-    const result = document.getElementById("result");
-    result.innerHTML = "";
-
-    if (results.length === 0) {
-        result.textContent = "결과가 없습니다.";
-        return;
+    let sum = 0;
+    for (let i = 1; i <= 10; i++) {
+      sum += Number(inputs[i].value) || 0;
     }
 
-    results.forEach((p, i) => {
-        const div = document.createElement("div");
-        div.className = "rank-item";
-        div.textContent = `${i + 1}등 - ${p.name} : ${p.sum}점`;
-        result.appendChild(div);
-    });
+    results.push({ name, sum });
+  });
+
+  results.sort((a, b) => b.sum - a.sum);
+
+  const result = document.getElementById("result");
+  result.innerHTML = "";
+
+  if (results.length === 0) {
+    result.textContent = "결과가 없습니다.";
+    return;
+  }
+
+  results.forEach((p, i) => {
+    const div = document.createElement("div");
+    div.className = "rank-item";
+    div.textContent = `${i + 1}등 · ${p.name} — ${p.sum}점`;
+    result.appendChild(div);
+  });
 }
 </script>
 
